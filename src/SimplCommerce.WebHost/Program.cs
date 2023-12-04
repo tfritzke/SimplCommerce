@@ -23,12 +23,12 @@ using SimplCommerce.Module.Localization.TagHelpers;
 using SimplCommerce.WebHost.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
-ConfigureService();
+ConfigureServices();
 var app = builder.Build();
 Configure();
 app.Run();
 
-void ConfigureService() 
+void ConfigureServices() 
 {
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     builder.Configuration.AddEntityFrameworkConfig(options =>
@@ -83,7 +83,7 @@ void ConfigureService()
 }
 
 void Configure()
-    { 
+{ 
     if (app.Environment.IsDevelopment())
     {
         app.UseDeveloperExceptionPage();
@@ -114,16 +114,14 @@ void Configure()
     app.UseCookiePolicy();
     app.UseCustomizedIdentity();
     app.UseCustomizedRequestLocalization();
-    app.UseEndpoints(endpoints =>
-    {
-        endpoints.MapDynamicControllerRoute<SlugRouteValueTransformer>("/{**slug}");
-        endpoints.MapControllerRoute(
-            name: "areas",
-            pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-        endpoints.MapControllerRoute(
-            name: "default",
-            pattern: "{controller=Home}/{action=Index}/{id?}");
-    });
+
+    app.MapDynamicControllerRoute<SlugRouteValueTransformer>("/{**slug}");
+    app.MapControllerRoute(
+        name: "areas",
+        pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+    app.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}");
 
     var moduleInitializers = app.Services.GetServices<IModuleInitializer>();
     foreach (var moduleInitializer in moduleInitializers)
